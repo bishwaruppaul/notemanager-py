@@ -71,10 +71,12 @@ jobs:
           pattern: NoteManagerPy-*
           merge-multiple: true
 
-      - name: Create release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "NoteManagerPy-*"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ github.ref_name }}
-          body: "Downloads for ${{ github.ref_name }}"
+      - name: Create release via API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" \
+            NoteManagerPy-* \
+            --title "$TAG" \
+            --notes ""
