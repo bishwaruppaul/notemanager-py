@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.spec
+
+# PyInstaller working directory
+build/
+
+# PyInstaller output
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
