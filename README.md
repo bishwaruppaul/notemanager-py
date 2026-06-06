@@ -4,7 +4,7 @@
 [![Windows](https://img.shields.io/badge/Windows-.exe-0078D4?logo=windows)](https://github.com/anomalyco/notemanager/releases)
 [![Linux](https://img.shields.io/badge/Linux-binary-E95420?logo=linux)](https://github.com/anomalyco/notemanager/releases)
 [![macOS](https://img.shields.io/badge/macOS-binary-000000?logo=apple)](https://github.com/anomalyco/notemanager/releases)
-[![Build](https://github.com/anomalyco/notemanager/actions/workflows/build.yml/badge.svg)](https://github.com/anomalyco/notemanager/actions/workflows/build.yml)
+[![Build](https://img.shields.io/github/actions/workflow/status/anomalyco/notemanager/build.yml?logo=github)](https://github.com/anomalyco/notemanager/actions/workflows/build.yml)
 
 A portable, offline note manager — no installation, no Python, no cloud. Double-click and write.
 
