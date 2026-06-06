@@ -71,12 +71,14 @@ jobs:
           pattern: NoteManagerPy-*
           merge-multiple: true
 
-      - name: Create release via API
+      - name: Upload to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF_NAME}"
-          gh release create "$TAG" \
-            NoteManagerPy-* \
-            --title "$TAG" \
-            --notes ""
+          echo "=== Files to upload ==="
+          ls -la NoteManagerPy-* 2>&1
+          echo "=== Creating/updating release ==="
+          gh release create "$TAG" --title "$TAG" --notes "" 2>/dev/null || true
+          echo "=== Uploading assets ==="
+          gh release upload "$TAG" NoteManagerPy-* --clobber
