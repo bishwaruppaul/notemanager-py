@@ -5,6 +5,9 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -68,10 +71,12 @@ jobs:
           pattern: NoteManagerPy-*
           merge-multiple: true
 
-      - name: List files
-        run: ls -lh
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: .
-          generate_release_notes: true
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "Downloads for $TAG" \
+            NoteManagerPy-*
