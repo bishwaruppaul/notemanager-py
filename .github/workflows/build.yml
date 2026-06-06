@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            platform: Windows
+            ext: .exe
+          - os: ubuntu-latest
+            platform: Linux
+            ext: ''
+          - os: macos-latest
+            platform: macOS
+            ext: ''
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build executable
+        run: python scripts/build.py
+
+      - name: Rename for release
+        shell: bash
+        run: |
+          if [ -f NoteManagerPy.exe ]; then
+            mv NoteManagerPy.exe NoteManagerPy-${{ matrix.platform }}.exe
+          elif [ -f NoteManagerPy ]; then
+            mv NoteManagerPy NoteManagerPy-${{ matrix.platform }}
+          elif [ -d NoteManagerPy.app ]; then
+            mv NoteManagerPy.app NoteManagerPy-${{ matrix.platform }}.app
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NoteManagerPy-${{ matrix.platform }}
+          path: |
+            NoteManagerPy-${{ matrix.platform }}*
+          if-no-files-found: error
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: NoteManagerPy-*
+          merge-multiple: true
+
+      - name: List files
+        run: ls -lh
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: .
+          generate_release_notes: true
