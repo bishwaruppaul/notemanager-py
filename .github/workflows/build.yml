@@ -66,10 +66,20 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download Windows build
+        uses: actions/download-artifact@v4
         with:
-          pattern: NoteManagerPy-*
-          merge-multiple: true
+          name: NoteManagerPy-Windows
+
+      - name: Download Linux build
+        uses: actions/download-artifact@v4
+        with:
+          name: NoteManagerPy-Linux
+
+      - name: Download macOS build
+        uses: actions/download-artifact@v4
+        with:
+          name: NoteManagerPy-macOS
 
       - name: Upload to release
         env:
@@ -77,8 +87,9 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           echo "=== Files to upload ==="
-          ls -la NoteManagerPy-* 2>&1
-          echo "=== Creating/updating release ==="
+          ls -laR
+          echo "=== Creating release ==="
           gh release create "$TAG" --title "$TAG" --notes "" 2>/dev/null || true
           echo "=== Uploading assets ==="
-          gh release upload "$TAG" NoteManagerPy-* --clobber
+          gh release upload "$TAG" NoteManagerPy-*.* NoteManagerPy-* --clobber 2>&1 || \
+          gh release upload "$TAG" ./* --clobber 2>&1
