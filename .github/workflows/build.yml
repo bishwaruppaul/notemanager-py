@@ -72,11 +72,9 @@ jobs:
           merge-multiple: true
 
       - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --notes "Downloads for $TAG" \
-            NoteManagerPy-*
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "NoteManagerPy-*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ github.ref_name }}
+          body: "Downloads for ${{ github.ref_name }}"
