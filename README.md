@@ -9,20 +9,19 @@ A **portable**, **browser-based** note manager — no installation, no cloud, no
 
 <div align="center">
   <h3>Screenshots</h3>
-  <br>
 
   <!-- Slide 1 -->
   <details open>
-    <summary><b>Slide 1: Editing</b></summary>
+    <summary><b>Editing</b></summary>
     <br>
-    <img src="screenshots/edit_screenshot.png" alt="Project Overview" width="80%">
+    <img src="screenshots/edit_screenshot.png" alt="Project Overview" width="60%">
   </details>
 
   <!-- Slide 2 -->
   <details>
-    <summary><b>Slide 2: Preview</b></summary>
+    <summary><b>Preview</b></summary>
     <br>
-    <img src="screenshots/preview_screenshot.png" alt="Features View" width="80%">
+    <img src="screenshots/preview_screenshot.png" alt="Features View" width="60%">
   </details>
 
 </div>
