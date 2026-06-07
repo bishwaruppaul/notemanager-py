@@ -188,6 +188,7 @@ function doSave() {
       saveStatus.className = 'saved';
       saveStatus.textContent = 'Saved';
       loadNotes();
+      loadTags();
     }).catch(() => { saveStatus.className = 'error'; saveStatus.textContent = 'Error'; });
   } else {
     saveStatus.className = '';
@@ -200,6 +201,7 @@ function doSave() {
       saveStatus.className = 'saved';
       saveStatus.textContent = 'Saved';
       loadNotes();
+      loadTags();
     }).catch(() => { saveStatus.className = 'error'; saveStatus.textContent = 'Error'; });
   }
 }
@@ -459,6 +461,14 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('#note-tags')) {
     tagSuggestions.style.display = 'none';
   }
+});
+
+// Keep-alive heartbeat — server shuts down ~120s after last heartbeat
+setInterval(() => { fetch('/api/heartbeat'); }, 30000);
+
+// Shutdown server when tab closes
+window.addEventListener('beforeunload', () => {
+  navigator.sendBeacon('/api/shutdown');
 });
 
 /* ── Init ── */

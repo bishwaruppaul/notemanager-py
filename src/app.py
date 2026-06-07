@@ -3,11 +3,17 @@ import os
 import json
 import glob
 import shutil
+import time
+import threading
 from datetime import datetime
 from urllib.parse import unquote
 
 from flask import Flask, request, jsonify, render_template
 import markdown as md_lib
+
+
+last_heartbeat = time.time()
+HEARTBEAT_TIMEOUT = 120
 
 
 def get_base_dir():
@@ -110,6 +116,16 @@ def get_tag_list(notes=None):
     return [{'tag': k, 'count': v} for k, v in sorted(tag_counts.items())]
 
 
+def activity_monitor():
+    while True:
+        time.sleep(30)
+        if time.time() - last_heartbeat > HEARTBEAT_TIMEOUT:
+            os._exit(0)
+
+
+threading.Thread(target=activity_monitor, daemon=True).start()
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -207,6 +223,19 @@ def api_export():
         parsed = parse_note(fp) if os.path.exists(fp) else {'content': ''}
         data.append({'title': n['title'], 'tags': n['tags'], 'created': n['created'], 'content': parsed['content']})
     return jsonify(data)
+
+
+@app.route('/api/heartbeat')
+def api_heartbeat():
+    global last_heartbeat
+    last_heartbeat = time.time()
+    return '', 204
+
+
+@app.route('/api/shutdown', methods=['POST'])
+def api_shutdown():
+    threading.Thread(target=lambda: (time.sleep(0.3), os._exit(0)), daemon=True).start()
+    return jsonify({'ok': True})
 
 
 if __name__ == '__main__':

@@ -9,6 +9,14 @@ A portable, offline note manager — no installation, no Python, no cloud. Doubl
 
 **NoteManagerPy** is the spiritual successor to [NoteManageR](https://github.com/bishwaruppaul/NoteManageR), reimagined as a web app with a rich editor, Markdown rendering, and a material-design three-panel layout.
 
+> **Why NoteManagerPy?**
+>
+> - **Simple plain-text notes** — no database, no proprietary format. Your notes are `.txt` files on disk.
+> - **100 % offline** — everything runs locally on your machine. No internet required, no cloud dependency.
+> - **Zero telemetry, zero AI** — no AI features, no data collection, no phoning home. Your notes never leave your computer.
+> - **Sync on your terms** — want to sync? Drop the `notes/` folder into Dropbox, Google Drive, Syncthing, or any cloud provider. No vendor lock-in.
+> - **Private by design** — all information stays completely under your control. There is no account, no sign-up, and no server but your own.
+
 > *Taking notes in plain text is rather simplistic, easy, portable and future-proof.*
 > — Derek Sivers, Szymon Krajewski
 

@@ -912,14 +912,10 @@ html, body {
 
 /* ── Theme Switcher ── */
 
-.sidebar-footer {
-  border-top: 1px solid var(--border);
-  padding: 10px;
-  margin-top: auto;
-}
-
 .theme-switcher {
   position: relative;
+  padding: 10px 10px 6px;
+  border-bottom: 1px solid var(--border);
 }
 
 .theme-btn {
@@ -963,7 +959,7 @@ html, body {
 .theme-dropdown {
   display: none;
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   background: var(--dropdown-bg);
