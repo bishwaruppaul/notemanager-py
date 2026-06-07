@@ -37,7 +37,6 @@ A portable, offline note manager — no installation, no Python, no cloud. Doubl
 - **Markdown rendering** — write in Markdown, see it formatted
 - **Tag organization** — autocomplete, filter by tag, sidebar tag cloud
 - **6 themes** — Light, Sepia, Solarized Light, One Dark, Nord, Dracula — persisted to localStorage
-- **Keyboard shortcuts** — `Ctrl+N` new note, `Ctrl+S` save, `Escape` close
 - **Search** — full-text search across all notes
 - **Material design** — elevation, ripple effects, smooth transitions
 - **Zero install** — single executable, no Python, no browser extensions
