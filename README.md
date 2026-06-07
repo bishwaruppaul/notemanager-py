@@ -5,7 +5,7 @@
 [![Linux](https://img.shields.io/badge/Linux-binary-E95420?logo=linux)](https://github.com/anomalyco/notemanager/releases)
 [![macOS](https://img.shields.io/badge/macOS-binary-000000?logo=apple)](https://github.com/anomalyco/notemanager/releases)
 
-A portable, offline note manager — no installation, no cloud, no AI. Double-click and write.
+A **portable**, **browser-based** note manager — no installation, no Python, no cloud, no AI. Double-click the executable, it opens instantly in your default browser with minimal resource usage. Close the tab and it's gone.
 
 **NoteManagerPy** is the spiritual successor to [NoteManageR](https://github.com/bishwaruppaul/NoteManageR), reimagined as a web app with a rich editor, Markdown rendering, and a material-design three-panel layout.
 

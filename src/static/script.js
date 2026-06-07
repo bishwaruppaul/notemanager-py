@@ -261,7 +261,7 @@ function applyTheme(name) {
   document.documentElement.setAttribute('data-theme', name);
   localStorage.setItem('nm-theme', name);
   themeLabel.textContent = THEMES[name].label;
-  themeOptions.forEach(el => el.classList.toggle('active', el.dataset.theme === name));
+  themeOptions.forEach(el => el.classList.toggle('active', el.dataset.value === name));
   // sun/moon icon visibility
   const isDark = THEMES[name].group === 'dark';
   document.querySelector('.theme-btn .icon-sun').style.display = isDark ? 'none' : '';
@@ -431,7 +431,7 @@ themeBtn.addEventListener('click', (e) => {
 // Theme option click
 themeOptions.forEach(el => {
   el.addEventListener('click', () => {
-    applyTheme(el.dataset.theme);
+    applyTheme(el.dataset.value);
     themeDropdown.classList.remove('open');
     themeBtn.querySelector('.chevron').classList.remove('open');
   });

@@ -927,8 +927,9 @@ html, body {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text);
   font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
   font-family: var(--font);
@@ -977,7 +978,8 @@ html, body {
 .theme-group-label {
   font-size: 10px;
   font-weight: 700;
-  color: var(--dropdown-label);
+  color: var(--dropdown-text);
+  opacity: 0.55;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   padding: 6px 8px 4px;
@@ -991,6 +993,7 @@ html, body {
   border-radius: 8px;
   cursor: pointer;
   font-size: 12.5px;
+  font-weight: 500;
   color: var(--dropdown-text);
   transition: background 0.12s ease;
 }
