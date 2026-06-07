@@ -5,7 +5,7 @@
 [![Linux](https://img.shields.io/badge/Linux-binary-E95420?logo=linux)](https://github.com/anomalyco/notemanager/releases)
 [![macOS](https://img.shields.io/badge/macOS-binary-000000?logo=apple)](https://github.com/anomalyco/notemanager/releases)
 
-A portable, offline note manager — no installation, no Python, no cloud. Double-click and write.
+A portable, offline note manager — no installation, no cloud, no AI. Double-click and write.
 
 **NoteManagerPy** is the spiritual successor to [NoteManageR](https://github.com/bishwaruppaul/NoteManageR), reimagined as a web app with a rich editor, Markdown rendering, and a material-design three-panel layout.
 
@@ -72,7 +72,7 @@ The app opens at [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 ### Create a note
 
-Click the **+** button or press `Ctrl+N`. Type a title, add tags (existing tags autocomplete), and write in Markdown. The note auto-saves as you type.
+Click the **+** button. Type a title, add tags (existing tags autocomplete), and write in Markdown. The note auto-saves as you type.
 
 ### Search notes
 
