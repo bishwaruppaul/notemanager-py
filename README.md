@@ -7,8 +7,26 @@
 
 A **portable**, **browser-based** note manager — no installation, no cloud, no AI. Double-click the executable, it opens instantly in your default browser with minimal resource usage. Close the tab and it's gone.
 
-[![Editing](https://github.com/bishwaruppaul/notemanager-py/blob/master/screenshots/edit_screenshot.png)
-[![Preview](https://github.com/bishwaruppaul/notemanager-py/blob/master/screenshots/preview_screenshot.png)
+<div align="center">
+  <h3>Screenshots</h3>
+  <br>
+
+  <!-- Slide 1 -->
+  <details open>
+    <summary><b>Slide 1: Editing</b></summary>
+    <br>
+    <img src="screenshots/edit_screenshot.png" alt="Project Overview" width="80%">
+  </details>
+
+  <!-- Slide 2 -->
+  <details>
+    <summary><b>Slide 2: Preview</b></summary>
+    <br>
+    <img src="screenshots/preview_screenshot.png" alt="Features View" width="80%">
+  </details>
+
+</div>
+
 
 **NoteManagerPy** is the spiritual successor to [NoteManageR](https://github.com/bishwaruppaul/NoteManageR), reimagined as a web app with a rich editor, Markdown rendering, and a material-design three-panel layout.
 
