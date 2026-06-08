@@ -443,6 +443,29 @@ document.addEventListener('click', () => {
   themeBtn.querySelector('.chevron')?.classList.remove('open');
 });
 
+// Sidebar toggle on tablets
+const menuBtn = $('#menu-btn');
+const backdrop = $('#sidebar-backdrop');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('open');
+  });
+  backdrop.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('open');
+  });
+}
+
+// Markdown help modal
+const mdHelpBtn = $('#md-help-btn');
+const mdModal = $('#markdown-modal');
+if (mdHelpBtn && mdModal) {
+  mdHelpBtn.addEventListener('click', () => { mdModal.style.display = 'flex'; });
+  mdModal.querySelector('.modal-close')?.addEventListener('click', () => { mdModal.style.display = 'none'; });
+  mdModal.addEventListener('click', (e) => { if (e.target === mdModal) mdModal.style.display = 'none'; });
+}
+
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {

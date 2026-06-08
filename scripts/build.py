@@ -63,10 +63,16 @@ def main():
             except PermissionError:
                 pass
 
-    # Clean build work dir
+    # Clean build work dir and stale spec file
     build_work = os.path.join(BUILD_DIR, 'build')
     if os.path.exists(build_work):
         shutil.rmtree(build_work, ignore_errors=True)
+    spec_path = os.path.join(build_work, out_name.replace('.exe', '').replace('.app', '') + '.spec')
+    if os.path.exists(spec_path):
+        try:
+            os.remove(spec_path)
+        except PermissionError:
+            pass
 
     # Data files to bundle
     sep = ';' if IS_WINDOWS else ':'

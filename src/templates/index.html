@@ -10,6 +10,7 @@
 </head>
 <body>
 <div id="app">
+  <div id="sidebar-backdrop"></div>
   <aside id="sidebar">
     <div class="sidebar-header">
       <h1><span class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> NoteManagerPy</h1>
@@ -46,6 +47,9 @@
 
   <main id="main">
     <header class="main-header">
+      <button id="menu-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
       <div class="search-wrap">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="search-input" placeholder="Search notes..." autocomplete="off">
@@ -81,6 +85,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             Preview
           </button>
+          <button id="md-help-btn" class="tb-btn" title="Markdown syntax help">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Markdown
+          </button>
         </div>
         <div class="toolbar-right">
           <span id="save-status"></span>
@@ -94,6 +102,34 @@
       <div id="note-preview" style="display:none" class="markdown-body"></div>
     </div>
   </section>
+</div>
+
+<div id="markdown-modal" class="modal-backdrop" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Markdown Syntax</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-content">
+      <table class="md-help-table">
+        <tr><th>Element</th><th>Syntax</th></tr>
+        <tr><td>Heading 1</td><td><code># text</code></td></tr>
+        <tr><td>Heading 2</td><td><code>## text</code></td></tr>
+        <tr><td>Heading 3</td><td><code>### text</code></td></tr>
+        <tr><td>Bold</td><td><code>**text**</code></td></tr>
+        <tr><td>Italic</td><td><code>*text*</code></td></tr>
+        <tr><td>Strikethrough</td><td><code>~~text~~</code></td></tr>
+        <tr><td>Unordered List</td><td><code>- item</code></td></tr>
+        <tr><td>Ordered List</td><td><code>1. item</code></td></tr>
+        <tr><td>Link</td><td><code>[text](url)</code></td></tr>
+        <tr><td>Image</td><td><code>![alt](url)</code></td></tr>
+        <tr><td>Inline Code</td><td><code>`code`</code></td></tr>
+        <tr><td>Code Block</td><td><code>```<br>code<br>```</code></td></tr>
+        <tr><td>Blockquote</td><td><code>&gt; quote</code></td></tr>
+        <tr><td>Horizontal Rule</td><td><code>---</code></td></tr>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script src="/static/script.js"></script>

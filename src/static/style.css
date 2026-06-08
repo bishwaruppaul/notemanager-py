@@ -903,6 +903,106 @@ html, body {
 .markdown-body hr { border: none; border-top: 1.5px solid var(--border); margin: 1.2em 0; }
 .markdown-body img { max-width: 100%; border-radius: 10px; }
 
+/* ── Modal ── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--z4);
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.modal-header h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  border-radius: 6px;
+  transition: all var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--sidebar-hover);
+  color: var(--text);
+}
+
+.modal-content {
+  padding: 16px 24px 24px;
+}
+
+.md-help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.md-help-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border);
+}
+
+.md-help-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text);
+}
+
+.md-help-table tr:last-child td {
+  border-bottom: none;
+}
+
+.md-help-table td:first-child {
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.md-help-table td:last-child code {
+  background: var(--sidebar-hover);
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--text);
+}
+
 /* ── Scrollbar ── */
 
 ::-webkit-scrollbar { width: 6px; }
@@ -1018,4 +1118,101 @@ html, body {
   border-radius: 50%;
   flex-shrink: 0;
   border: 1.5px solid var(--dropdown-border);
+}
+
+/* ── Menu button (sidebar toggle on tablets) ── */
+
+#menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+#menu-btn:hover {
+  background: var(--sidebar-hover);
+  color: var(--text);
+}
+
+#sidebar-backdrop {
+  display: none;
+}
+
+/* ── Responsive ── */
+
+/* Small laptops (≤1280px) */
+@media (max-width: 1280px) {
+  #app {
+    grid-template-columns: 200px 280px 1fr;
+  }
+  .editor-top { padding: 24px 28px 0; }
+  #note-title { font-size: 26px; }
+  #note-content, #note-preview { padding: 18px 28px; }
+  .editor-toolbar { padding: 8px 28px; }
+}
+
+/* Tablets landscape (≤1024px) */
+@media (max-width: 1024px) {
+  #app {
+    grid-template-columns: 180px 240px 1fr;
+  }
+  .sidebar-header h1 { font-size: 13px; padding: 12px 14px; }
+  .sidebar-header .logo-icon svg { width: 17px; height: 17px; }
+  .sidebar-item { font-size: 12px; padding: 6px 10px; }
+  .sidebar-item .count { font-size: 10px; min-width: 16px; }
+  .tag-item { font-size: 12px; padding: 5px 10px; }
+  .sidebar-label { font-size: 9px; padding: 10px 10px 4px; }
+  .theme-switcher { padding: 8px 10px 4px; }
+  .theme-btn { font-size: 11.5px; padding: 6px 10px; }
+  .editor-top { padding: 18px 22px 0; }
+  #note-title { font-size: 22px; padding-bottom: 10px; }
+  #note-content, #note-preview { padding: 14px 22px; font-size: 13px; }
+  .editor-toolbar { padding: 6px 22px; }
+  .main-header { padding: 10px 14px; }
+  #search-input { font-size: 12px; padding: 8px 12px 8px 34px; }
+  #new-note-btn { font-size: 12px; height: 34px; padding: 0 14px; }
+  .note-card { padding: 12px 14px; }
+  .note-card-title { font-size: 13px; }
+  .note-card-preview { font-size: 11.5px; }
+}
+
+/* Tablets portrait (≤820px) */
+@media (max-width: 820px) {
+  #app {
+    grid-template-columns: 1fr 1fr;
+  }
+  #menu-btn {
+    display: flex;
+  }
+  #sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--z4);
+    border-right: none;
+  }
+  #sidebar.open {
+    transform: translateX(0);
+  }
+  #sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 199;
+  }
+  #sidebar-backdrop.open {
+    display: block;
+  }
+  .main-header { padding: 10px 14px; }
 }
