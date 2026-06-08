@@ -68,7 +68,7 @@ A **portable**, **browser-based** note manager — no installation, no cloud, no
 
 ### Windows
 
-Download `NoteManagerPy-Windows.exe` from the [latest release](https://github.com/anomalyco/notemanager/releases) and double-click it.
+Download `NoteManagerPy-Windows.exe` from the [latest release](https://github.com/bishwaruppaul/notemanager-py/releases) and double-click it.
 
 ### Linux
 
