@@ -489,6 +489,42 @@ document.addEventListener('click', (e) => {
 // Keep-alive heartbeat — server shuts down ~120s after last heartbeat
 setInterval(() => { fetch('/api/heartbeat'); }, 30000);
 
+// Update check
+const updateBanner = $('#update-banner');
+const updateText = updateBanner?.querySelector('.update-banner-text');
+const updateLink = updateBanner?.querySelector('.update-banner-link');
+const updateClose = updateBanner?.querySelector('.update-banner-close');
+
+function checkForUpdate() {
+  if (!updateBanner) return;
+  fetch('/api/check-update')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.update_available) return;
+      const dismissed = localStorage.getItem('nm-update-dismissed');
+      if (dismissed === data.latest_version) return;
+      updateText.textContent = `A new version (v${data.latest_version}) is available.`;
+      updateLink.href = data.download_url;
+      updateBanner.style.display = 'flex';
+    })
+    .catch(() => {});
+}
+
+if (updateClose) {
+  updateClose.addEventListener('click', () => {
+    updateBanner.style.display = 'none';
+    // Don't show again for this version
+    fetch('/api/check-update')
+      .then(r => r.json())
+      .then(data => {
+        if (data.latest_version) {
+          localStorage.setItem('nm-update-dismissed', data.latest_version);
+        }
+      })
+      .catch(() => {});
+  });
+}
+
 // Shutdown server when tab closes
 window.addEventListener('beforeunload', () => {
   navigator.sendBeacon('/api/shutdown');
@@ -497,3 +533,4 @@ window.addEventListener('beforeunload', () => {
 /* ── Init ── */
 initTheme();
 loadAll();
+checkForUpdate();

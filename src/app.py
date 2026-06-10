@@ -5,6 +5,7 @@ import glob
 import shutil
 import time
 import threading
+import urllib.request
 from datetime import datetime
 from urllib.parse import unquote
 
@@ -12,8 +13,14 @@ from flask import Flask, request, jsonify, render_template
 import markdown as md_lib
 
 
+APP_VERSION = '1.0.1'
+REPO = 'bishwaruppaul/notemanager-py'
+
 last_heartbeat = time.time()
 HEARTBEAT_TIMEOUT = 120
+
+_update_cache = {'data': None, 'time': 0}
+UPDATE_CACHE_TTL = 3600
 
 
 def get_base_dir():
@@ -126,6 +133,57 @@ def activity_monitor():
 threading.Thread(target=activity_monitor, daemon=True).start()
 
 
+def _parse_semver(v):
+    try:
+        return [int(x) for x in v.lstrip('v').split('.')]
+    except (ValueError, AttributeError):
+        return []
+
+
+def _version_gte(v1, v2):
+    p1, p2 = _parse_semver(v1), _parse_semver(v2)
+    max_len = max(len(p1), len(p2))
+    p1 += [0] * (max_len - len(p1))
+    p2 += [0] * (max_len - len(p2))
+    return p1 >= p2
+
+
+def check_for_update():
+    global _update_cache
+    now = time.time()
+    if _update_cache['data'] is not None and now - _update_cache['time'] < UPDATE_CACHE_TTL:
+        return _update_cache['data']
+    url = f'https://api.github.com/repos/{REPO}/releases/latest'
+    try:
+        req = urllib.request.Request(url, headers={
+            'User-Agent': 'NoteManagerPy',
+            'Accept': 'application/vnd.github.v3+json',
+        })
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode())
+            tag = data.get('tag_name', '')
+            latest_ver = tag.lstrip('v')
+            result = {
+                'update_available': _version_gte(latest_ver, APP_VERSION) and latest_ver != APP_VERSION,
+                'latest_version': latest_ver,
+                'download_url': data.get('html_url', f'https://github.com/{REPO}/releases/latest'),
+                'current_version': APP_VERSION,
+                'error': None,
+            }
+            _update_cache = {'data': result, 'time': now}
+            return result
+    except Exception as e:
+        result = {
+            'update_available': False,
+            'latest_version': '',
+            'download_url': '',
+            'current_version': APP_VERSION,
+            'error': str(e),
+        }
+        _update_cache = {'data': result, 'time': now}
+        return result
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -223,6 +281,11 @@ def api_export():
         parsed = parse_note(fp) if os.path.exists(fp) else {'content': ''}
         data.append({'title': n['title'], 'tags': n['tags'], 'created': n['created'], 'content': parsed['content']})
     return jsonify(data)
+
+
+@app.route('/api/check-update')
+def api_check_update():
+    return jsonify(check_for_update())
 
 
 @app.route('/api/heartbeat')
