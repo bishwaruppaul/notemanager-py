@@ -14,14 +14,14 @@ A **portable**, **browser-based** note manager — no installation, no cloud, no
   <details open>
     <summary><b>Editing</b></summary>
     <br>
-    <img src="screenshots/edit_screenshot.png" alt="Project Overview" width="60%">
+    <img src="screenshots/edit_screenshot.png" alt="Project Overview" width="80%">
   </details>
 
   <!-- Slide 2 -->
   <details>
     <summary><b>Preview</b></summary>
     <br>
-    <img src="screenshots/preview_screenshot.png" alt="Features View" width="60%">
+    <img src="screenshots/preview_screenshot.png" alt="Features View" width="80%">
   </details>
 
 </div>
