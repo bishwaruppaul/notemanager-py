@@ -54,15 +54,18 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
 
       - name: Prepare signing certificate (Windows only)
-        if: runner.os == 'Windows' && secrets.SIGNING_PFX_B64 != ''
+        if: runner.os == 'Windows'
+        env:
+          PFX_B64: ${{ secrets.SIGNING_PFX_B64 }}
+          PFX_PWD: ${{ secrets.SIGNING_PASSWORD }}
         shell: pwsh
         run: |
-          $pfxB64 = "${{ secrets.SIGNING_PFX_B64 }}"
-          $bytes = [Convert]::FromBase64String($pfxB64)
+          if (-not $env:PFX_B64) { Write-Host "SIGNING_PFX_B64 not set, skipping"; exit 0 }
+          $bytes = [Convert]::FromBase64String($env:PFX_B64)
           $pfxPath = Join-Path $env:RUNNER_TEMP "signing.pfx"
           [IO.File]::WriteAllBytes($pfxPath, $bytes)
           Add-Content -Path $env:GITHUB_ENV -Value "SIGNING_PFX=$pfxPath"
-          Add-Content -Path $env:GITHUB_ENV -Value "SIGNING_PASSWORD=${{ secrets.SIGNING_PASSWORD }}"
+          Add-Content -Path $env:GITHUB_ENV -Value "SIGNING_PASSWORD=$env:PFX_PWD"
 
       - name: Build executable
         run: python scripts/build.py
