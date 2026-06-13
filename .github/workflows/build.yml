@@ -53,6 +53,17 @@ jobs:
           echo "NM_VERSION=${raw#v}" >> $GITHUB_ENV
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
 
+      - name: Prepare signing certificate (Windows only)
+        if: runner.os == 'Windows' && secrets.SIGNING_PFX_B64 != ''
+        shell: pwsh
+        run: |
+          $pfxB64 = "${{ secrets.SIGNING_PFX_B64 }}"
+          $bytes = [Convert]::FromBase64String($pfxB64)
+          $pfxPath = Join-Path $env:RUNNER_TEMP "signing.pfx"
+          [IO.File]::WriteAllBytes($pfxPath, $bytes)
+          Add-Content -Path $env:GITHUB_ENV -Value "SIGNING_PFX=$pfxPath"
+          Add-Content -Path $env:GITHUB_ENV -Value "SIGNING_PASSWORD=${{ secrets.SIGNING_PASSWORD }}"
+
       - name: Build executable
         run: python scripts/build.py
 

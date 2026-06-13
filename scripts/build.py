@@ -22,10 +22,45 @@ BUILD_DIR = os.path.dirname(SCRIPTS_DIR)
 SRC_DIR = os.path.join(BUILD_DIR, 'src')
 ICON_PATH = os.path.join(BUILD_DIR, 'icon.ico')
 
+# Timestamp server for Authenticode signing (free, provided by DigiCert)
+TIMESTAMP_SERVER = 'http://timestamp.digicert.com'
+
 SYSTEM = platform.system()
 IS_WINDOWS = SYSTEM == 'Windows'
 IS_MACOS = SYSTEM == 'Darwin'
 IS_LINUX = SYSTEM == 'Linux'
+
+
+def sign_windows_exe(exe_path):
+    """Sign a Windows PE with a self-signed certificate via PowerShell's
+    Set-AuthenticodeSignature.  Requires SIGNING_PFX and SIGNING_PASSWORD
+    env vars.  Skips silently if either is missing."""
+    pfx = os.environ.get('SIGNING_PFX') or ''
+    pwd = os.environ.get('SIGNING_PASSWORD') or ''
+    if not pfx or not pwd:
+        print('  Signing skipped (SIGNING_PFX / SIGNING_PASSWORD not set)')
+        return
+    if not os.path.exists(pfx):
+        print(f'  Signing skipped — PFX not found: {pfx}')
+        return
+
+    print(f'  Signing with {pfx} ...', end=' ', flush=True)
+    # Build a PowerShell command that signs the file with a timestamp
+    ps_cmd = (
+        f'$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2; '
+        f'$cert.Import("{pfx}", "{pwd}", "DefaultKeySet"); '
+        f'Set-AuthenticodeSignature -FilePath "{exe_path}" '
+        f'-Certificate $cert -TimestampServer "{TIMESTAMP_SERVER}" -IncludeChain All'
+    )
+    result = subprocess.run(
+        ['powershell', '-NoProfile', '-Command', ps_cmd],
+        capture_output=True, text=True, timeout=60
+    )
+    if result.returncode == 0:
+        print('done')
+    else:
+        print(f'FAILED (exit {result.returncode})')
+        print(f'  stderr: {result.stderr.strip()}')
 
 
 def find_output(base_name):
@@ -118,6 +153,10 @@ def main():
 
     print(f'Building NoteManagerPy for {SYSTEM}...')
     subprocess.check_call(cmd)
+
+    # Sign the Windows executable (silently skipped if env vars aren't set)
+    if IS_WINDOWS and os.path.exists(out_path):
+        sign_windows_exe(out_path)
 
     base = out_name.replace('.exe', '').replace('.app', '')
     result = find_output(base)

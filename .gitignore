@@ -20,6 +20,9 @@ NoteManagerPy
 # Auto-generated version file (created by scripts/build.py)
 VERSION
 
+# Code-signing private key (do NOT commit)
+signing.pfx
+
 # OS
 .DS_Store
 Thumbs.db
