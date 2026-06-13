@@ -17,6 +17,13 @@
       --border: #e2e8f0;
       --radius: 12px;
     }
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -25,6 +32,7 @@
       line-height: 1.6;
     }
     .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    a { color: var(--primary); }
 
     /* Hero */
     .hero {
@@ -32,6 +40,7 @@
       color: #fff;
       padding: 80px 24px 60px;
       text-align: center;
+      position: relative;
     }
     .hero h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.02em; }
     .hero p { font-size: 1.15rem; margin-top: 12px; opacity: .85; max-width: 600px; margin-inline: auto; }
@@ -47,6 +56,17 @@
     .btn-secondary:hover { background: rgba(255,255,255,.25); transform: translateY(-1px); }
     .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 
+    /* Theme toggle */
+    .theme-toggle {
+      position: absolute; top: 16px; right: 24px;
+      background: rgba(255,255,255,.15); border: 0; border-radius: 8px;
+      color: #fff; width: 40px; height: 40px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px); transition: .2s;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,.25); }
+    .theme-toggle svg { width: 22px; height: 22px; }
+
     /* Sections */
     section { padding: 60px 0; }
     section:nth-child(even) { background: var(--surface); }
@@ -60,11 +80,35 @@
     .screenshots-grid figure {
       background: var(--surface); border-radius: var(--radius); overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,.1); border: 1px solid var(--border);
+      cursor: pointer; transition: .2s;
     }
+    .screenshots-grid figure:hover { box-shadow: 0 4px 12px rgba(0,0,0,.15); }
     .screenshots-grid figcaption {
       padding: 12px 16px; font-size: .9rem; font-weight: 500; color: var(--text-muted);
     }
     .screenshots-grid img { width: 100%; display: block; }
+
+    /*** Lightbox ***/
+    .lightbox {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,.85); display: none;
+      align-items: center; justify-content: center;
+      padding: 24px; cursor: pointer;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 95vw; max-height: 90vh;
+      border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,.5);
+      cursor: default;
+    }
+    .lightbox-close {
+      position: absolute; top: 16px; right: 24px;
+      background: rgba(255,255,255,.15); border: 0; border-radius: 8px;
+      color: #fff; width: 40px; height: 40px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; transition: .2s;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,.25); }
 
     /*** Features ***/
     .features-grid {
@@ -81,6 +125,24 @@
       font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;
     }
     .feature-card p { font-size: .92rem; color: var(--text-muted); }
+
+    /*** Why section ***/
+    .why-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+    }
+    .why-item {
+      background: var(--bg); border-radius: var(--radius);
+      padding: 20px; border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+    }
+    .why-item h3 { font-size: 1rem; }
+    .why-item p { font-size: .9rem; color: var(--text-muted); margin-top: 4px; }
+
+    /*** Comparison table ***/
+    .compare-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    .compare-table th, .compare-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .compare-table th { font-weight: 600; color: var(--text-muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; }
+    .compare-table tr:last-child td { border-bottom: 0; }
 
     /*** Quick start ***/
     .tabs-nav {
@@ -116,12 +178,18 @@
     @media (max-width: 700px) {
       .hero h1 { font-size: 1.8rem; }
       .screenshots-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
 <header class="hero">
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+    <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  </button>
   <div class="container">
     <h1>NoteManagerPy</h1>
     <p>Portable, browser-based note manager. Double-click, take notes, close. No install, no cloud, no AI.</p>
@@ -141,16 +209,45 @@
   </div>
 </header>
 
+<!-- Why NoteManagerPy? -->
+<section>
+  <div class="container">
+    <h2>Why NoteManagerPy?</h2>
+    <div class="why-grid">
+      <div class="why-item">
+        <h3>Simple plain-text notes</h3>
+        <p>No database, no proprietary format. Your notes are <code>.txt</code> files on disk, readable by any text editor.</p>
+      </div>
+      <div class="why-item">
+        <h3>100% offline</h3>
+        <p>Everything runs locally on your machine. No internet required, no cloud dependency.</p>
+      </div>
+      <div class="why-item">
+        <h3>Zero telemetry, zero AI</h3>
+        <p>No AI features, no data collection, no phoning home. Your notes never leave your computer.</p>
+      </div>
+      <div class="why-item">
+        <h3>Sync on your terms</h3>
+        <p>Drop the <code>notes/</code> folder into Dropbox, Google Drive, Syncthing, or any cloud provider. No vendor lock-in.</p>
+      </div>
+      <div class="why-item">
+        <h3>Private by design</h3>
+        <p>All information stays completely under your control. There is no account, no sign-up, and no server but your own.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Screenshots -->
 <section>
   <div class="container">
     <h2>Screenshots</h2>
     <div class="screenshots-grid">
-      <figure>
+      <figure onclick="openLightbox('screenshots/edit_screenshot.png')">
         <img src="screenshots/edit_screenshot.png" alt="Editing a note">
         <figcaption>Editing — inline Markdown editor with tag autocomplete</figcaption>
       </figure>
-      <figure>
+      <figure onclick="openLightbox('screenshots/preview_screenshot.png')">
         <img src="screenshots/preview_screenshot.png" alt="Markdown preview">
         <figcaption>Preview — rendered Markdown with syntax highlighting</figcaption>
       </figure>
@@ -166,44 +263,63 @@
       <div class="feature-card">
         <div class="icon">P</div>
         <h3>Portable</h3>
-        <p>Single executable, zero dependencies. No Python, no npm, no Docker. Runs on Windows, Linux, and macOS.</p>
+        <p>Single executable, zero dependencies. No Python, no npm, no Docker. Runs on Windows, Linux, and macOS. Just double-click and go.</p>
       </div>
       <div class="feature-card">
         <div class="icon">A</div>
         <h3>Auto-save</h3>
-        <p>Debounced auto-save with a save-status indicator. Never lose a note.</p>
+        <p>Debounced auto-save with a save-status indicator. Every change is written to disk moments after you stop typing — never lose a note.</p>
       </div>
       <div class="feature-card">
         <div class="icon">M</div>
         <h3>Markdown</h3>
-        <p>Write in Markdown with live preview. Three-panel layout: tags, notes, editor.</p>
+        <p>Write in Markdown with live HTML preview. Three-panel layout: sidebar tags, note list, and inline editor — navigate entirely by mouse or keyboard.</p>
       </div>
       <div class="feature-card">
         <div class="icon">T</div>
         <h3>Tags</h3>
-        <p>Organize notes with tags. Autocomplete, filter by tag, sidebar tag cloud.</p>
+        <p>Organize notes with tags. Autocomplete suggests existing tags as you type. Click a tag in the sidebar to filter, click again to deselect.</p>
       </div>
       <div class="feature-card">
         <div class="icon">6</div>
         <h3>6 Themes</h3>
-        <p>Light, Sepia, Solarized Light, One Dark, Nord, Dracula. Saved across sessions.</p>
+        <p>Light, Sepia, Solarized Light, One Dark, Nord, Dracula. Switch from the top bar — your preference is persisted to localStorage across sessions.</p>
       </div>
       <div class="feature-card">
         <div class="icon">S</div>
         <h3>Search</h3>
-        <p>Full-text search across all notes. Results update as you type.</p>
+        <p>Full-text search across all notes. Results update as you type, matching note titles and content. Press Escape to clear the search.</p>
       </div>
       <div class="feature-card">
         <div class="icon">O</div>
         <h3>Offline</h3>
-        <p>Everything runs locally. No internet, no cloud, no accounts, no telemetry.</p>
+        <p>Everything runs locally. No internet, no cloud, no accounts, no telemetry, no AI. Your notes are yours — no one else can read them.</p>
       </div>
       <div class="feature-card">
         <div class="icon">F</div>
         <h3>Plain text</h3>
-        <p>Notes are plain <code>.txt</code> files. Compatible with the original NoteManageR format. Sync with any cloud.</p>
+        <p>Notes are plain <code>.txt</code> files on disk, compatible with the original NoteManageR format. Open them in any editor, sync with any cloud.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section>
+  <div class="container">
+    <h2>NoteManagerPy vs original NoteManageR</h2>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Feature</th><th>Original (R CLI)</th><th>This (Desktop web app)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Interface</td><td>Terminal-based, keyboard only</td><td>Three-panel GUI with mouse and keyboard</td></tr>
+        <tr><td>Editing</td><td>Plain text in system editor</td><td>Inline editor with auto-save</td></tr>
+        <tr><td>Markdown preview</td><td>None</td><td>Live Markdown rendering</td></tr>
+        <tr><td>Themes</td><td>Single color scheme</td><td>6 themes (Light, Dark, Sepia, Solarized, One Dark, Nord, Dracula)</td></tr>
+        <tr><td>Dependencies</td><td>Requires R installation</td><td>Standalone executable — zero dependencies</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
@@ -278,19 +394,81 @@
   </div>
 </footer>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="Screenshot preview">
+</div>
+
 <script>
   (function() {
+    /* ---- Tab switcher ---- */
     const nav = document.getElementById('tabs-nav');
-    if (!nav) return;
-    nav.addEventListener('click', function(e) {
-      const btn = e.target.closest('.tab-btn');
-      if (!btn) return;
-      nav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    });
+    if (nav) {
+      nav.addEventListener('click', function(e) {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        nav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    }
+
+    /* ---- Light / dark toggle ---- */
+    const html = document.documentElement;
+    const toggleBtn = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('theme-icon-sun');
+    const moonIcon = document.getElementById('theme-icon-moon');
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+      localStorage.setItem('theme', theme);
+      sunIcon.style.display = theme === 'dark' ? 'none' : '';
+      moonIcon.style.display  = theme === 'dark' ? '' : 'none';
+    }
+
+    // Restore saved theme or use system preference
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function() {
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+      });
+    }
   })();
+
+  /* ---- Lightbox ---- */
+  function openLightbox(src) {
+    document.getElementById('lightbox').classList.add('open');
+    document.getElementById('lightbox-img').src = src;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox(ev) {
+    // If the click is on the backdrop (not the image), close
+    if (ev && ev.target !== ev.currentTarget) return;
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightbox-img').src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const lb = document.getElementById('lightbox');
+      if (lb.classList.contains('open')) {
+        lb.classList.remove('open');
+        document.getElementById('lightbox-img').src = '';
+        document.body.style.overflow = '';
+      }
+    }
+  });
 </script>
 </body>
 </html>
