@@ -501,6 +501,7 @@ function checkForUpdate() {
     .then(r => r.json())
     .then(data => {
       if (!data.update_available) return;
+      if (data.current_version === data.latest_version) return;
       const dismissed = localStorage.getItem('nm-update-dismissed');
       if (dismissed === data.latest_version) return;
       updateText.textContent = `A new version (v${data.latest_version}) is available.`;

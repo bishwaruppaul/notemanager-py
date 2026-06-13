@@ -17,6 +17,9 @@ notes/
 NoteManagerPy.exe
 NoteManagerPy
 
+# Auto-generated version file (created by scripts/build.py)
+VERSION
+
 # OS
 .DS_Store
 Thumbs.db

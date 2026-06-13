@@ -47,6 +47,9 @@ def find_output(base_name):
 
 
 def main():
+    # Generate VERSION file with version from env (CI) or default (local build)
+    version = os.environ.get('NM_VERSION', '0.0.0')
+
     # Determine output name
     out_name = os.environ.get('NM_OUTPUT_NAME', 'NoteManagerPy')
     if IS_WINDOWS and not out_name.endswith('.exe') and not out_name.endswith('.app'):
@@ -81,6 +84,12 @@ def main():
         path = os.path.join(SRC_DIR, folder)
         if os.path.exists(path):
             data_args.append(f'--add-data={path}{sep}{folder}')
+
+    # Generate VERSION file and add it to the bundle root
+    ver_path = os.path.join(BUILD_DIR, 'VERSION')
+    with open(ver_path, 'w') as f:
+        f.write(version + '\n')
+    data_args.append(f'--add-data={ver_path}{sep}.')
 
     icon_arg = []
     if os.path.exists(ICON_PATH):

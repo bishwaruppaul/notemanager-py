@@ -13,7 +13,7 @@ from flask import Flask, request, jsonify, render_template
 import markdown as md_lib
 
 
-APP_VERSION = '1.0.1'
+APP_VERSION = '0.0.0'
 REPO = 'bishwaruppaul/notemanager-py'
 
 last_heartbeat = time.time()
@@ -35,6 +35,16 @@ def get_resource_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 
+def _get_version():
+    try:
+        base = get_resource_dir()
+        with open(os.path.join(base, 'VERSION')) as f:
+            return f.read().strip()
+    except Exception:
+        return '0.0.0'
+
+
+APP_VERSION = _get_version()
 NOTES_DIR = os.path.join(get_base_dir(), 'notes')
 app = Flask(
     __name__,
@@ -186,7 +196,7 @@ def check_for_update():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', version=APP_VERSION)
 
 
 @app.route('/api/notes')
