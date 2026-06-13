@@ -1,9 +1,9 @@
 ﻿# NoteManagerPy
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Windows](https://img.shields.io/badge/Windows-.exe-0078D4?logo=windows)](https://github.com/anomalyco/notemanager/releases)
-[![Linux](https://img.shields.io/badge/Linux-binary-E95420?logo=linux)](https://github.com/anomalyco/notemanager/releases)
-[![macOS](https://img.shields.io/badge/macOS-binary-000000?logo=apple)](https://github.com/anomalyco/notemanager/releases)
+[![Windows](https://img.shields.io/badge/Windows-.exe-0078D4?logo=windows)](https://github.com/bishwaruppaul/notemanager-py/releases)
+[![Linux](https://img.shields.io/badge/Linux-binary-E95420?logo=linux)](https://github.com/bishwaruppaul/notemanager-py/releases)
+[![macOS](https://img.shields.io/badge/macOS-binary-000000?logo=apple)](https://github.com/bishwaruppaul/notemanager-py/releases)
 
 A **portable**, **browser-based** note manager — no installation, no cloud, no AI. Double-click the executable, it opens instantly in your default browser with minimal resource usage. Close the tab and it's gone.
 
@@ -151,7 +151,7 @@ python scripts/release.py 1.0.0
 
 This pushes a `v1.0.0` tag. GitHub Actions builds all three platforms and creates a GitHub Release with the executables attached.
 
-You can also trigger a release manually from the [Actions tab](https://github.com/anomalyco/notemanager/actions) — enter a tag name, and the workflow will build and publish.
+You can also trigger a release manually from the [Actions tab](https://github.com/bishwaruppaul/notemanager-py/actions) — enter a tag name, and the workflow will build and publish.
 
 ---
 

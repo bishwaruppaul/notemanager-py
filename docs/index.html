@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NoteManagerPy — Portable, browser-based note manager. Double-click, take notes, close. No install, no cloud, no AI.">
+  <title>NoteManagerPy</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      padding: 80px 24px 60px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hero p { font-size: 1.15rem; margin-top: 12px; opacity: .85; max-width: 600px; margin-inline: auto; }
+    .hero-actions { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      text-decoration: none; transition: .2s;
+    }
+    .btn-primary { background: #fff; color: var(--primary); }
+    .btn-primary:hover { background: #eef2ff; transform: translateY(-1px); }
+    .btn-secondary { background: rgba(255,255,255,.15); color: #fff; backdrop-filter: blur(4px); }
+    .btn-secondary:hover { background: rgba(255,255,255,.25); transform: translateY(-1px); }
+    .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* Sections */
+    section { padding: 60px 0; }
+    section:nth-child(even) { background: var(--surface); }
+    h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 24px; }
+    h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+
+    /*** Screenshots ***/
+    .screenshots-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .screenshots-grid figure {
+      background: var(--surface); border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1); border: 1px solid var(--border);
+    }
+    .screenshots-grid figcaption {
+      padding: 12px 16px; font-size: .9rem; font-weight: 500; color: var(--text-muted);
+    }
+    .screenshots-grid img { width: 100%; display: block; }
+
+    /*** Features ***/
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg); border-radius: var(--radius);
+      padding: 24px; border: 1px solid var(--border);
+    }
+    .feature-card .icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;
+    }
+    .feature-card p { font-size: .92rem; color: var(--text-muted); }
+
+    /*** Quick start ***/
+    .tabs-nav {
+      display: flex; gap: 4px; margin-bottom: 0;
+      background: var(--bg); padding: 4px; border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid var(--border); border-bottom: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 16px; border: 0; border-radius: 8px 8px 0 0;
+      font-size: .9rem; font-weight: 500; cursor: pointer; transition: .15s;
+      background: transparent; color: var(--text-muted);
+    }
+    .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 -1px 3px rgba(0,0,0,.06); }
+    .tab-content { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); padding: 20px 24px; }
+    .tab-content.active { display: block; }
+    .tab-content code { display: block; background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; font-size: .85rem; overflow-x: auto; }
+    .tab-content li { margin-bottom: 6px; font-size: .95rem; }
+
+    /*** Themes table ***/
+    .theme-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    .theme-table th, .theme-table td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    .theme-table th { font-weight: 600; color: var(--text-muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; }
+    .swatch { display: inline-block; width: 48px; height: 24px; border-radius: 4px; border: 1px solid var(--border); vertical-align: middle; margin-right: 8px; }
+
+    /*** Footer ***/
+    footer {
+      text-align: center; padding: 40px 24px;
+      color: var(--text-muted); font-size: .88rem;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+
+    /*** Responsive ***/
+    @media (max-width: 700px) {
+      .hero h1 { font-size: 1.8rem; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <h1>NoteManagerPy</h1>
+    <p>Portable, browser-based note manager. Double-click, take notes, close. No install, no cloud, no AI.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/bishwaruppaul/notemanager-py/releases/latest" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download latest
+      </a>
+      <a class="btn btn-secondary" href="https://github.com/bishwaruppaul/notemanager-py" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+        View source
+      </a>
+    </div>
+    <div class="hero-actions" style="margin-top:12px;font-size:.88rem;opacity:.7">
+      Windows &bull; Linux &bull; macOS
+    </div>
+  </div>
+</header>
+
+<!-- Screenshots -->
+<section>
+  <div class="container">
+    <h2>Screenshots</h2>
+    <div class="screenshots-grid">
+      <figure>
+        <img src="screenshots/edit_screenshot.png" alt="Editing a note">
+        <figcaption>Editing — inline Markdown editor with tag autocomplete</figcaption>
+      </figure>
+      <figure>
+        <img src="screenshots/preview_screenshot.png" alt="Markdown preview">
+        <figcaption>Preview — rendered Markdown with syntax highlighting</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section>
+  <div class="container">
+    <h2>Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">P</div>
+        <h3>Portable</h3>
+        <p>Single executable, zero dependencies. No Python, no npm, no Docker. Runs on Windows, Linux, and macOS.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">A</div>
+        <h3>Auto-save</h3>
+        <p>Debounced auto-save with a save-status indicator. Never lose a note.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">M</div>
+        <h3>Markdown</h3>
+        <p>Write in Markdown with live preview. Three-panel layout: tags, notes, editor.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">T</div>
+        <h3>Tags</h3>
+        <p>Organize notes with tags. Autocomplete, filter by tag, sidebar tag cloud.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">6</div>
+        <h3>6 Themes</h3>
+        <p>Light, Sepia, Solarized Light, One Dark, Nord, Dracula. Saved across sessions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">S</div>
+        <h3>Search</h3>
+        <p>Full-text search across all notes. Results update as you type.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">O</div>
+        <h3>Offline</h3>
+        <p>Everything runs locally. No internet, no cloud, no accounts, no telemetry.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">F</div>
+        <h3>Plain text</h3>
+        <p>Notes are plain <code>.txt</code> files. Compatible with the original NoteManageR format. Sync with any cloud.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick start -->
+<section>
+  <div class="container">
+    <h2>Quick start</h2>
+    <div class="tabs-nav" id="tabs-nav">
+      <button class="tab-btn active" data-tab="win">Windows</button>
+      <button class="tab-btn" data-tab="linux">Linux</button>
+      <button class="tab-btn" data-tab="mac">macOS</button>
+    </div>
+    <div class="tab-content active" id="tab-win">
+      <ol style="padding-left:20px">
+        <li>Download <strong>NoteManagerPy-Windows.exe</strong> from the <a href="https://github.com/bishwaruppaul/notemanager-py/releases/latest">latest release</a>.</li>
+        <li>Double-click the downloaded file.</li>
+        <li>Open <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a> in your browser.</li>
+      </ol>
+    </div>
+    <div class="tab-content" id="tab-linux">
+      <ol style="padding-left:20px">
+        <li>Download <strong>NoteManagerPy-Linux</strong> from the <a href="https://github.com/bishwaruppaul/notemanager-py/releases/latest">latest release</a>.</li>
+        <li><code>chmod +x NoteManagerPy-Linux</code></li>
+        <li><code>./NoteManagerPy-Linux</code></li>
+        <li>Open <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>.</li>
+      </ol>
+    </div>
+    <div class="tab-content" id="tab-mac">
+      <ol style="padding-left:20px">
+        <li>Download <strong>NoteManagerPy-macOS</strong> (or <strong>NoteManagerPy-macOS.app</strong>) from the <a href="https://github.com/bishwaruppaul/notemanager-py/releases/latest">latest release</a>.</li>
+        <li><code>chmod +x NoteManagerPy-macOS</code></li>
+        <li><code>./NoteManagerPy-macOS</code></li>
+        <li>Open <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- Themes -->
+<section>
+  <div class="container">
+    <h2>Themes</h2>
+    <table class="theme-table">
+      <thead>
+        <tr><th>Theme</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="swatch" style="background:#ffffff;border-color:#cbd5e1"></span>Light</td><td>Clean white background, dark text</td></tr>
+        <tr><td><span class="swatch" style="background:#fbf1c7"></span>Sepia</td><td>Warm paper-toned background</td></tr>
+        <tr><td><span class="swatch" style="background:#fdf6e3"></span>Solarized Light</td><td>Solarized light color scheme</td></tr>
+        <tr><td><span class="swatch" style="background:#282c34"></span>One Dark</td><td>Atom One Dark syntax colors</td></tr>
+        <tr><td><span class="swatch" style="background:#2e3440"></span>Nord</td><td>Arctic, bluish dark theme</td></tr>
+        <tr><td><span class="swatch" style="background:#282a36"></span>Dracula</td><td>Dark purple-based theme</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Build from source -->
+<section>
+  <div class="container">
+    <h2>Build from source</h2>
+    <code>pip install -r requirements.txt<br>python scripts/build.py</code>
+    <p style="margin-top:12px;font-size:.92rem;color:var(--text-muted)">Requires Python 3.12+. The executable appears in the project root.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p><a href="https://github.com/bishwaruppaul/notemanager-py">bishwaruppaul/notemanager-py</a> &bull; GNU GPL v3</p>
+    <p style="margin-top:4px;opacity:.7">Inspired by <a href="https://github.com/bishwaruppaul/NoteManageR">NoteManageR</a> and the philosophy of plain-text note-taking.</p>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    const nav = document.getElementById('tabs-nav');
+    if (!nav) return;
+    nav.addEventListener('click', function(e) {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      nav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  })();
+</script>
+</body>
+</html>
