@@ -79,11 +79,17 @@ def parse_note(filepath):
     return {'tags': tags, 'created': created, 'content': content}
 
 
-def write_note(filepath, title, tags, created, content):
+def write_note(title, tags, created, content, folder=''):
     title = title.strip().replace('/', '-').replace('\\', '-')
     if not title:
         title = 'untitled'
-    full_path = os.path.join(NOTES_DIR, title + '.txt')
+    if folder:
+        folder = folder.strip().replace('/', '-').replace('\\', '-')
+        full_dir = os.path.join(NOTES_DIR, folder)
+        os.makedirs(full_dir, exist_ok=True)
+        full_path = os.path.join(full_dir, title + '.txt')
+    else:
+        full_path = os.path.join(NOTES_DIR, title + '.txt')
     tag_str = ' '.join(tags)
     with open(full_path, 'w', encoding='utf-8') as f:
         f.write(f'Tags: {tag_str}\n')
@@ -92,30 +98,43 @@ def write_note(filepath, title, tags, created, content):
         f.write(content)
         if not content.endswith('\n'):
             f.write('\n')
-    return title
+    return f'{folder}/{title}' if folder else title
 
 
 def get_note_list():
     ensure_notes_dir()
     notes = []
-    for fp in sorted(glob.glob(os.path.join(NOTES_DIR, '*.txt')), key=os.path.getmtime, reverse=True):
-        fname = os.path.splitext(os.path.basename(fp))[0]
+    for fp in sorted(glob.glob(os.path.join(NOTES_DIR, '**', '*.txt'), recursive=True), key=os.path.getmtime, reverse=True):
+        rel = os.path.relpath(fp, NOTES_DIR)
+        parts = rel.split(os.sep)
+        if len(parts) == 1:
+            folder = ''
+            fname = os.path.splitext(parts[0])[0]
+            note_id = fname
+        else:
+            folder = parts[0]
+            if folder.startswith('.'):
+                continue
+            fname = os.path.splitext(''.join(parts[1:]))[0]
+            note_id = f'{folder}/{fname}'
         try:
             parsed = parse_note(fp)
             preview = parsed['content'][:120].replace('\n', ' ').strip()
             if len(parsed['content']) > 120:
                 preview += '...'
             notes.append({
-                'id': fname,
+                'id': note_id,
                 'title': fname,
+                'folder': folder,
                 'tags': parsed['tags'],
                 'created': parsed['created'],
                 'preview': preview,
             })
         except Exception:
             notes.append({
-                'id': fname,
+                'id': note_id,
                 'title': fname,
+                'folder': folder,
                 'tags': [],
                 'created': '',
                 'preview': '',
@@ -204,10 +223,13 @@ def api_list_notes():
     notes = get_note_list()
     q = request.args.get('q', '').strip().lower()
     tag = request.args.get('tag', '').strip()
+    folder = request.args.get('folder', '').strip()
     if q:
         notes = [n for n in notes if q in n['title'].lower() or q in ' '.join(n['tags']).lower()]
     if tag:
         notes = [n for n in notes if tag in n['tags']]
+    if folder:
+        notes = [n for n in notes if n['folder'] == folder]
     return jsonify(notes)
 
 
@@ -219,7 +241,8 @@ def api_get_note(note_id):
         return jsonify({'error': 'Note not found'}), 404
     parsed = parse_note(fp)
     parsed['id'] = note_id
-    parsed['title'] = note_id
+    parsed['title'] = note_id.split('/', 1)[-1]
+    parsed['folder'] = note_id.split('/', 1)[0] if '/' in note_id else ''
     parsed['content_html'] = md_lib.markdown(parsed['content'])
     return jsonify(parsed)
 
@@ -230,9 +253,10 @@ def api_create_note():
     title = data.get('title', '').strip()
     tags = data.get('tags', [])
     content = data.get('content', '')
+    folder = data.get('folder', '')
     created = datetime.now().strftime('%d %b %Y, %I:%M %p')
-    final_title = write_note(NOTES_DIR, title, tags, created, content)
-    return jsonify({'id': final_title, 'title': final_title, 'tags': tags, 'created': created}), 201
+    final_id = write_note(title, tags, created, content, folder)
+    return jsonify({'id': final_id, 'title': title, 'folder': folder, 'tags': tags, 'created': created}), 201
 
 
 @app.route('/api/notes/<path:note_id>', methods=['PUT'])
@@ -246,16 +270,20 @@ def api_update_note(note_id):
     content = data.get('content', '')
     old_parsed = parse_note(fp)
     created = old_parsed['created'] or datetime.now().strftime('%d %b %Y, %I:%M %p')
-    new_title = data.get('title', '').strip() or note_id
-    if new_title != note_id:
-        new_fp = os.path.join(NOTES_DIR, new_title + '.txt')
-        if os.path.exists(new_fp) and new_fp != fp:
-            return jsonify({'error': 'A note with this title already exists'}), 409
-        write_note(NOTES_DIR, new_title, tags, created, content)
+    new_title = data.get('title', '').strip() or os.path.basename(note_id)
+    new_folder = data.get('folder', '')
+    old_folder = os.path.dirname(note_id) if '/' in note_id else ''
+
+    folder_changed = new_folder != old_folder
+    title_changed = new_title != os.path.basename(note_id)
+
+    if folder_changed or title_changed:
+        new_id = write_note(new_title, tags, created, content, new_folder)
         os.remove(fp)
+        return jsonify({'id': new_id, 'title': new_title, 'folder': new_folder, 'tags': tags, 'created': created})
     else:
-        write_note(NOTES_DIR, note_id, tags, created, content)
-    return jsonify({'id': new_title, 'title': new_title, 'tags': tags, 'created': created})
+        write_note(new_title, tags, created, content, new_folder)
+        return jsonify({'id': note_id, 'title': new_title, 'folder': new_folder, 'tags': tags, 'created': created})
 
 
 @app.route('/api/notes/<path:note_id>', methods=['DELETE'])
@@ -272,6 +300,58 @@ def api_delete_note(note_id):
 def api_list_tags():
     notes = get_note_list()
     return jsonify(get_tag_list(notes))
+
+
+@app.route('/api/tags/<path:tag_name>', methods=['DELETE'])
+def api_delete_tag(tag_name):
+    tag_name = unquote(tag_name)
+    for fp in glob.glob(os.path.join(NOTES_DIR, '**', '*.txt'), recursive=True):
+        parsed = parse_note(fp)
+        if tag_name not in parsed['tags']:
+            continue
+        parsed['tags'] = [t for t in parsed['tags'] if t != tag_name]
+        rel = os.path.relpath(fp, NOTES_DIR)
+        parts = rel.split(os.sep)
+        folder = parts[0] if len(parts) > 1 else ''
+        fname = os.path.splitext(''.join(parts[1:]) if len(parts) > 1 else parts[0])[0]
+        write_note(fname, parsed['tags'], parsed['created'], parsed['content'], folder)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/folders')
+def api_list_folders():
+    ensure_notes_dir()
+    folders = []
+    for entry in os.listdir(NOTES_DIR):
+        full = os.path.join(NOTES_DIR, entry)
+        if os.path.isdir(full) and not entry.startswith('.'):
+            count = len([f for f in os.listdir(full) if f.endswith('.txt')])
+            folders.append({'name': entry, 'count': count})
+    folders.sort(key=lambda f: f['name'].lower())
+    return jsonify(folders)
+
+
+@app.route('/api/folders', methods=['POST'])
+def api_create_folder():
+    data = request.get_json()
+    name = data.get('name', '').strip().replace('/', '-').replace('\\', '-')
+    if not name:
+        return jsonify({'error': 'Folder name is required'}), 400
+    full = os.path.join(NOTES_DIR, name)
+    if os.path.exists(full):
+        return jsonify({'error': 'Folder already exists'}), 409
+    os.makedirs(full, exist_ok=True)
+    return jsonify({'name': name}), 201
+
+
+@app.route('/api/folders/<path:folder_name>', methods=['DELETE'])
+def api_delete_folder(folder_name):
+    folder_name = unquote(folder_name).replace('/', '-').replace('\\', '-')
+    full = os.path.join(NOTES_DIR, folder_name)
+    if not os.path.isdir(full):
+        return jsonify({'error': 'Folder not found'}), 404
+    shutil.rmtree(full)
+    return jsonify({'ok': True})
 
 
 @app.route('/api/notes/by-tag/<path:tag_name>')

@@ -15,24 +15,6 @@
     <div class="sidebar-header">
       <h1><span class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> NoteManagerPy <span class="version-badge">v{{ version }}</span></h1>
     </div>
-    <div class="theme-switcher">
-      <button class="theme-btn" id="theme-btn">
-        <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <span id="theme-label">Light</span>
-        <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="theme-dropdown" id="theme-dropdown">
-        <div class="theme-group-label">Light</div>
-        <div class="theme-option active" data-value="light"><span class="theme-swatch" style="background:#f5f5f7;border-color:#b0b0b4"></span>Light<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
-        <div class="theme-option" data-value="sepia"><span class="theme-swatch" style="background:#fbf7f0;border-color:#e0d5c4"></span>Sepia<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
-        <div class="theme-option" data-value="solarized-light"><span class="theme-swatch" style="background:#fdf6e3;border-color:#cdc7b3"></span>Solarized<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
-        <div class="theme-group-label">Dark</div>
-        <div class="theme-option" data-value="one-dark"><span class="theme-swatch" style="background:#21252b;border-color:#3e4451"></span>One Dark<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
-        <div class="theme-option" data-value="nord"><span class="theme-swatch" style="background:#3b4252;border-color:#4c566a"></span>Nord<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
-        <div class="theme-option" data-value="dracula"><span class="theme-swatch" style="background:#1e1f29;border-color:#3d3e4f"></span>Dracula<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
-      </div>
-    </div>
     <nav id="sidebar-nav">
       <div class="sidebar-item ripple active" data-tag="">
         <span class="item-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
@@ -42,6 +24,13 @@
       <div class="sidebar-divider"></div>
       <div class="sidebar-label">Tags</div>
       <div id="tag-list"></div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-label">Folders</div>
+      <div id="folder-list"></div>
+      <div class="folder-create">
+        <input type="text" id="new-folder-input" placeholder="New folder..." autocomplete="off">
+        <button id="new-folder-btn">+</button>
+      </div>
     </nav>
   </aside>
 
@@ -77,6 +66,12 @@
           <div id="tag-pills"></div>
           <input type="text" id="tag-input" placeholder="Add tag..." autocomplete="off">
           <div id="tag-suggestions" class="suggestions" style="display:none"></div>
+          <div class="editor-folder-row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            <select id="note-folder">
+              <option value="">No folder</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -107,6 +102,38 @@
       <div id="note-preview" style="display:none" class="markdown-body"></div>
     </div>
   </section>
+</div>
+
+<div class="theme-switcher" id="theme-switcher">
+  <button class="theme-btn" id="theme-btn" title="Switch theme">
+    <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+  <div class="theme-dropdown" id="theme-dropdown">
+    <div class="theme-group-label">Light</div>
+    <div class="theme-option active" data-value="light"><span class="theme-swatch" style="background:#f5f5f7;border-color:#b0b0b4"></span>Light<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+    <div class="theme-option" data-value="sepia"><span class="theme-swatch" style="background:#fbf7f0;border-color:#e0d5c4"></span>Sepia<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+    <div class="theme-option" data-value="solarized-light"><span class="theme-swatch" style="background:#fdf6e3;border-color:#cdc7b3"></span>Solarized<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+    <div class="theme-group-label">Dark</div>
+    <div class="theme-option" data-value="one-dark"><span class="theme-swatch" style="background:#21252b;border-color:#3e4451"></span>One Dark<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+    <div class="theme-option" data-value="nord"><span class="theme-swatch" style="background:#3b4252;border-color:#4c566a"></span>Nord<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+    <div class="theme-option" data-value="dracula"><span class="theme-swatch" style="background:#1e1f29;border-color:#3d3e4f"></span>Dracula<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+  </div>
+</div>
+
+<div id="confirm-modal" class="modal-backdrop" style="display:none">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>NoteManagerPy</h2>
+    </div>
+    <div class="modal-content">
+      <p id="confirm-msg"></p>
+      <div class="modal-actions">
+        <button id="confirm-cancel" class="btn-secondary">Cancel</button>
+        <button id="confirm-ok" class="btn-primary">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="markdown-modal" class="modal-backdrop" style="display:none">

@@ -45,6 +45,7 @@ A **portable**, **browser-based** note manager — no installation, no cloud, no
 | Terminal-based, keyboard only | Three-panel GUI with mouse and keyboard |
 | Plain text editing in system editor | Inline editor with auto-save |
 | No Markdown preview | Live Markdown rendering |
+| All notes in a flat directory | Folder organization with subdirectories |
 | Single color scheme | 6 themes (Light, Dark, Sepia, Solarized, One Dark, Nord, Dracula) |
 | Requires R installation | Standalone executable — zero dependencies |
 
@@ -52,7 +53,8 @@ A **portable**, **browser-based** note manager — no installation, no cloud, no
 
 ## Features
 
-- **Three-panel layout** — sidebar tags, note list, inline editor
+- **Three-panel layout** — sidebar tags & folders, note list, inline editor
+- **Folder organization** — group notes into subdirectories, create folders from the sidebar, filter by folder
 - **Auto-save** — debounced, with save-status indicator
 - **Markdown rendering** — write in Markdown, see it formatted
 - **Tag organization** — autocomplete, filter by tag, sidebar tag cloud
@@ -97,6 +99,10 @@ Click the **+** button. Type a title, add tags (existing tags autocomplete), and
 ### Search notes
 
 Use the search bar at the top. Results update as you type, matching note titles and content.
+
+### Organize with folders
+
+Create folders from the sidebar to group related notes. When creating or editing a note, assign it to a folder using the dropdown in the editor toolbar. Click a folder in the sidebar to filter notes by that folder only. Folders correspond to subdirectories in `notes/` on disk.
 
 ### Filter by tag
 

@@ -2,8 +2,10 @@
 let state = {
   notes: [],
   tags: [],
+  folders: [],
   selectedId: null,
   activeTag: '',
+  activeFolder: '',
   searchQuery: '',
 };
 
@@ -38,6 +40,18 @@ const api = {
   },
   tags: {
     list: () => fetch('/api/tags').then(r => r.json()),
+    delete: (tag) => fetch('/api/tags/' + encodeURIComponent(tag), {
+      method: 'DELETE'
+    }).then(r => r.json()),
+  },
+  folders: {
+    list: () => fetch('/api/folders').then(r => r.json()),
+    create: (name) => fetch('/api/folders', {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name})
+    }).then(r => r.json()),
+    delete: (name) => fetch('/api/folders/' + encodeURIComponent(name), {
+      method: 'DELETE'
+    }).then(r => r.json()),
   }
 };
 
@@ -47,6 +61,7 @@ const $$ = (s) => document.querySelectorAll(s);
 
 const noteList = $('#note-list');
 const tagList = $('#tag-list');
+const folderList = $('#folder-list');
 const editorEmpty = $('#editor-empty');
 const editorContent = $('#editor-content');
 const noteTitle = $('#note-title');
@@ -55,6 +70,7 @@ const tagInput = $('#tag-input');
 const tagSuggestions = $('#tag-suggestions');
 const noteContent = $('#note-content');
 const notePreview = $('#note-preview');
+const noteFolder = $('#note-folder');
 const saveStatus = $('#save-status');
 const searchInput = $('#search-input');
 const newNoteBtn = $('#new-note-btn');
@@ -74,15 +90,31 @@ function renderTagList() {
   for (const t of state.tags) {
     const active = state.activeTag === t.tag ? ' active' : '';
     html += `<div class="tag-item ripple${active}" data-tag="${escapeHtml(t.tag)}">
-      <span class="tag-dot"></span>${escapeHtml(t.tag)}
+      <span class="tag-dot"></span><span class="item-label">${escapeHtml(t.tag)}</span>
       <span class="count">${t.count}</span>
+      <button class="item-remove" title="Remove tag">&times;</button>
     </div>`;
   }
   tagList.innerHTML = html;
 
   // highlight sidebar "All Notes"
-  sidebarAll.classList.toggle('active', state.activeTag === '');
+  sidebarAll.classList.toggle('active', state.activeTag === '' && state.activeFolder === '');
   allCount.textContent = state.notes.length;
+}
+
+function renderFolderList() {
+  let html = '';
+  for (const f of state.folders) {
+    const active = state.activeFolder === f.name ? ' active' : '';
+    html += `<div class="folder-item ripple${active}" data-folder="${escapeHtml(f.name)}">
+      <span class="folder-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+      </span><span class="item-label">${escapeHtml(f.name)}</span>
+      <span class="count">${f.count}</span>
+      <button class="item-remove" title="Remove folder">&times;</button>
+    </div>`;
+  }
+  if (folderList) folderList.innerHTML = html;
 }
 
 function renderNoteList() {
@@ -95,11 +127,13 @@ function renderNoteList() {
     const active = n.id === state.selectedId ? ' active' : '';
     const tagsHtml = n.tags.map(t => `<span class="tag-pill">${escapeHtml(t)}</span>`).join('');
     const date = n.created ? n.created.split(',')[0] : '';
+    const folderBadge = n.folder ? `<span class="folder-pill"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> ${escapeHtml(n.folder)}</span>` : '';
     html += `<div class="note-card ripple${active}" data-id="${escapeHtml(n.id)}">
       <div class="note-card-title">${escapeHtml(n.title)}</div>
       <div class="note-card-preview">${escapeHtml(n.preview || 'Empty note')}</div>
       <div class="note-card-meta">
         ${n.tags.length ? `<span class="note-card-tags">${tagsHtml}</span>` : ''}
+        ${folderBadge}
         <span class="note-card-date">${escapeHtml(date)}</span>
       </div>
     </div>`;
@@ -113,6 +147,18 @@ function renderTagPills() {
   ).join('');
 }
 
+function renderFolderSelector() {
+  if (!noteFolder) return;
+  const current = currentNoteContent.folder || '';
+  let html = '<option value="">No folder</option>';
+  for (const f of state.folders) {
+    const sel = f.name === current ? ' selected' : '';
+    html += `<option value="${escapeHtml(f.name)}"${sel}>${escapeHtml(f.name)}</option>`;
+  }
+  noteFolder.innerHTML = html;
+  noteFolder.value = current;
+}
+
 /* ── Editor ── */
 
 function showEditor(note) {
@@ -121,8 +167,9 @@ function showEditor(note) {
 
   ignoreNextNoteSelect = true;
   noteTitle.value = note.title || '';
-  currentNoteContent = { tags: [...(note.tags || [])], content: note.content || '', title: note.title || '' };
+  currentNoteContent = { tags: [...(note.tags || [])], content: note.content || '', title: note.title || '', folder: note.folder || '' };
   renderTagPills();
+  renderFolderSelector();
   noteContent.value = note.content || '';
   notePreview.innerHTML = note.content_html || '';
   saveStatus.className = '';
@@ -177,31 +224,35 @@ function doSave() {
   const title = noteTitle.value.trim() || 'untitled';
   const content = noteContent.value || '';
   const tags = currentNoteContent.tags;
+  const folder = noteFolder ? noteFolder.value : '';
 
   if (!state.selectedId) {
-    // create
     saveStatus.className = '';
     saveStatus.textContent = 'Saving...';
-    api.notes.create({ title, tags, content }).then(result => {
+    api.notes.create({ title, tags, content, folder }).then(result => {
       state.selectedId = result.id;
       currentNoteContent.title = result.id;
+      currentNoteContent.folder = result.folder || '';
       saveStatus.className = 'saved';
       saveStatus.textContent = 'Saved';
       loadNotes();
       loadTags();
+      loadFolders();
     }).catch(() => { saveStatus.className = 'error'; saveStatus.textContent = 'Error'; });
   } else {
     saveStatus.className = '';
     saveStatus.textContent = 'Saving...';
-    api.notes.update(state.selectedId, { title, tags, content }).then(result => {
+    api.notes.update(state.selectedId, { title, tags, content, folder }).then(result => {
       if (result.id !== state.selectedId) {
         state.selectedId = result.id;
         currentNoteContent.title = result.id;
       }
+      currentNoteContent.folder = result.folder || '';
       saveStatus.className = 'saved';
       saveStatus.textContent = 'Saved';
       loadNotes();
       loadTags();
+      loadFolders();
     }).catch(() => { saveStatus.className = 'error'; saveStatus.textContent = 'Error'; });
   }
 }
@@ -211,6 +262,7 @@ function doSave() {
 function loadNotes() {
   const params = {};
   if (state.activeTag) params.tag = state.activeTag;
+  if (state.activeFolder) params.folder = state.activeFolder;
   if (state.searchQuery) params.q = state.searchQuery;
   api.notes.list(params).then(notes => {
     state.notes = notes;
@@ -229,9 +281,43 @@ function loadTags() {
   });
 }
 
+function loadFolders() {
+  api.folders.list().then(folders => {
+    state.folders = folders;
+    renderFolderList();
+    renderFolderSelector();
+  });
+}
+
 function loadAll() {
   loadNotes();
   loadTags();
+  loadFolders();
+}
+
+/* ── Confirm dialog ── */
+
+function showConfirm(msg) {
+  return new Promise(resolve => {
+    const modal = $('#confirm-modal');
+    const msgEl = $('#confirm-msg');
+    const okBtn = $('#confirm-ok');
+    const cancelBtn = $('#confirm-cancel');
+    msgEl.textContent = msg;
+    modal.style.display = 'flex';
+    function cleanup(result) {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      modal.removeEventListener('click', onBackdrop);
+    }
+    function onOk() { cleanup(true); resolve(true); }
+    function onCancel() { cleanup(false); resolve(false); }
+    function onBackdrop(e) { if (e.target === modal) { cleanup(false); resolve(false); } }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    modal.addEventListener('click', onBackdrop);
+  });
 }
 
 /* ── Helpers ── */
@@ -260,7 +346,7 @@ function getSavedTheme() {
 function applyTheme(name) {
   document.documentElement.setAttribute('data-theme', name);
   localStorage.setItem('nm-theme', name);
-  themeLabel.textContent = THEMES[name].label;
+  if (themeLabel) themeLabel.textContent = THEMES[name].label;
   themeOptions.forEach(el => el.classList.toggle('active', el.dataset.value === name));
   // sun/moon icon visibility
   const isDark = THEMES[name].group === 'dark';
@@ -278,8 +364,10 @@ function initTheme() {
 // Sidebar - All Notes
 sidebarAll.addEventListener('click', () => {
   state.activeTag = '';
+  state.activeFolder = '';
   sidebarAll.classList.add('active');
   document.querySelectorAll('.tag-item.active').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.folder-item.active').forEach(el => el.classList.remove('active'));
   searchInput.value = '';
   state.searchQuery = '';
   loadNotes();
@@ -287,6 +375,17 @@ sidebarAll.addEventListener('click', () => {
 
 // Sidebar - tag items (delegated)
 tagList.addEventListener('click', (e) => {
+  const remove = e.target.closest('.item-remove');
+  if (remove) {
+    const item = remove.closest('.tag-item');
+    if (!item) return;
+    const tag = item.dataset.tag;
+    (async () => {
+      if (!await showConfirm(`Remove tag "${tag}"? This will remove it from all notes.`)) return;
+      api.tags.delete(tag).then(() => loadAll());
+    })();
+    return;
+  }
   const item = e.target.closest('.tag-item');
   if (!item) return;
   const tag = item.dataset.tag;
@@ -299,6 +398,58 @@ tagList.addEventListener('click', (e) => {
   loadNotes();
 });
 
+// Sidebar - folder items (delegated)
+if (folderList) {
+  folderList.addEventListener('click', (e) => {
+    const remove = e.target.closest('.item-remove');
+    if (remove) {
+      const item = remove.closest('.folder-item');
+      if (!item) return;
+      const folder = item.dataset.folder;
+      const count = state.folders.find(f => f.name === folder)?.count || 0;
+      const msg = count ? `Delete folder "${folder}" and all ${count} note(s) inside it?` : `Delete folder "${folder}"?`;
+      (async () => {
+        if (!await showConfirm(msg)) return;
+        api.folders.delete(folder).then(() => {
+          if (state.activeFolder === folder) {
+            state.activeFolder = '';
+            document.querySelectorAll('.sidebar-item.active').forEach(el => el.classList.remove('active'));
+          }
+          loadAll();
+        });
+      })();
+      return;
+    }
+    const item = e.target.closest('.folder-item');
+    if (!item) return;
+    const folder = item.dataset.folder;
+    state.activeFolder = folder;
+    document.querySelectorAll('.folder-item.active').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item.active').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+    searchInput.value = '';
+    state.searchQuery = '';
+    loadNotes();
+  });
+}
+
+// New folder button
+const newFolderBtn = $('#new-folder-btn');
+const newFolderInput = $('#new-folder-input');
+if (newFolderBtn && newFolderInput) {
+  newFolderBtn.addEventListener('click', () => {
+    const name = newFolderInput.value.trim();
+    if (!name) return;
+    api.folders.create(name).then(() => {
+      newFolderInput.value = '';
+      loadFolders();
+    }).catch(() => {});
+  });
+  newFolderInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') newFolderBtn.click();
+  });
+}
+
 // Note list click (delegated)
 noteList.addEventListener('click', (e) => {
   const card = e.target.closest('.note-card');
@@ -309,16 +460,16 @@ noteList.addEventListener('click', (e) => {
 // New note
 newNoteBtn.addEventListener('click', () => {
   state.selectedId = null;
-  currentNoteContent = { tags: [], content: '', title: '' };
-  showEditor({ title: '', tags: [], content: '', content_html: '' });
+  currentNoteContent = { tags: [], content: '', title: '', folder: '' };
+  showEditor({ title: '', tags: [], content: '', content_html: '', folder: '' });
   noteTitle.focus();
   renderNoteList();
 });
 
 // Delete
-deleteBtn.addEventListener('click', () => {
+deleteBtn.addEventListener('click', async () => {
   if (!state.selectedId) return;
-  if (!confirm('Delete this note?')) return;
+  if (!await showConfirm('Delete this note?')) return;
   api.notes.delete(state.selectedId).then(() => {
     showEmptyState();
     loadNotes();
@@ -338,6 +489,14 @@ searchInput.addEventListener('input', () => {
 
 // Title change
 noteTitle.addEventListener('input', scheduleSave);
+
+// Folder change
+if (noteFolder) {
+  noteFolder.addEventListener('change', () => {
+    currentNoteContent.folder = noteFolder.value;
+    scheduleSave();
+  });
+}
 
 // Content change
 noteContent.addEventListener('input', scheduleSave);
